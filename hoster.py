@@ -62,6 +62,8 @@ def get_container_data(dockerClient, container_id):
     container_hostname = info["Config"]["Hostname"]
     container_name = info["Name"].strip("/")
     container_ip = info["NetworkSettings"]["IPAddress"]
+    if info["Config"]["Domainname"]:
+        container_hostname = container_hostname + "." + info["Config"]["Domainname"]
     
     result = []
 
@@ -104,7 +106,8 @@ def update_hosts_file():
             break;
 
     #remove all the trailing newlines on the line list
-    while lines[-1].strip()=="": lines.pop()
+    if lines:
+        while lines[-1].strip()=="": lines.pop()
 
     #append all the domain lines
     if len(hosts)>0:
