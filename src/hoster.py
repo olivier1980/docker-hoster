@@ -24,6 +24,7 @@ def main():
     signal.signal(signal.SIGTERM, signal_handler)
 
     args = parse_args()
+    print (args)
     global hosts_path
     hosts_path = args.file
 
@@ -60,11 +61,12 @@ def get_container_data(dockerClient, container_id):
     #extract all the info with the docker api
     info = dockerClient.inspect_container(container_id)
     container_hostname = info["Config"]["Hostname"]
+    container_domainname = False
     container_name = info["Name"].strip("/")
     container_ip = info["NetworkSettings"]["IPAddress"]
     if info["Config"]["Domainname"]:
-        container_hostname = info["Config"]["Domainname"]
-    
+        container_domainname = info["Config"]["Domainname"]
+
     result = []
 
     for values in info["NetworkSettings"]["Networks"].values():
@@ -72,10 +74,14 @@ def get_container_data(dockerClient, container_id):
         if not values["Aliases"]: 
             continue
 
+        col = [container_name, container_hostname]
+        if container_domainname:
+            col.append(container_domainname)
+
         result.append({
                 "ip": values["IPAddress"] , 
                 "name": container_name,
-                "domains": set(values["Aliases"] + [container_name, container_hostname])
+                "domains": set(values["Aliases"] + col)
             })
 
     if container_ip:
