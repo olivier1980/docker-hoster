@@ -1,0 +1,15 @@
+version: "3.1"
+
+networks:
+  default:
+    external:
+      name: compose_default
+
+
+services:
+  docker-hoster-domain:
+    build: src
+    container_name: docker-hoster-domain
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock
+      - /etc/hosts:/tmp/hosts
